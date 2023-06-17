@@ -1,3 +1,10 @@
+import List from '@/components/List';
+
 export default function Home() {
-  return <main>Lief</main>;
+  return (
+    <main>
+      Lief
+      <List />
+    </main>
+  );
 }

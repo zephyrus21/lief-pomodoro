@@ -5,6 +5,7 @@
 /.pnp
 .pnp.js
 .yarn/*
+.yarn/install-state.gz
 !.yarn/releases
 !.yarn/patches
 !.yarn/plugins
