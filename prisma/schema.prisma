@@ -57,9 +57,9 @@ model VerificationToken {
 model Task {
   id        String   @id @default(cuid())
   title     String
-  completed Boolean
+  completed Boolean  @default(false)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  String
+  // updatedAt DateTime @updatedAt
+  author    User?    @relation(fields: [authorId], references: [email])
+  authorId  String?
 }

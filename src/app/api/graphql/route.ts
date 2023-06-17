@@ -2,20 +2,26 @@ import { startServerAndCreateNextHandler } from '@as-integrations/next';
 import { ApolloServer } from '@apollo/server';
 import { gql } from 'graphql-tag';
 import { NextRequest } from 'next/server';
-import prisma from '@/lib/prisma';
+import { PrismaClient } from '@prisma/client';
+
+type Context = {
+  prisma: PrismaClient;
+};
 
 const typeDefs = gql`
   type Query {
     users: [User!]!
+    user(email: String!): User!
   }
 
   type Mutation {
-    createTask(data: CreateTaskInput!): Task!
+    createTask(title: String!, authorEmail: String!): Task!
   }
 
-  input CreateTaskInput {
+  type Task {
+    id: ID!
     title: String!
-    authorEmail: String!
+    completed: Boolean!
   }
 
   type User {
@@ -27,19 +33,25 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
-    users: async () => {
-      const users = await prisma.user.findMany();
+    users: async (parent: any, args: any, context: Context) => {
+      const users = await context.prisma.user.findMany();
       return users;
+    },
+    user: async (parent: any, args: any, context: Context) => {
+      const user = await context.prisma.user.findUnique({
+        where: { email: args.email },
+      });
+
+      return user;
     },
   },
   Mutation: {
-    createTask: async (parent: any, args: any) => {
-      const task = await prisma.task.create({
+    createTask: async (parent: any, args: any, context: any) => {
+      const task = await context.prisma.task.create({
         data: {
-          title: args.data.title,
-          completed: false,
+          title: args.title,
           author: {
-            connect: { email: args.data.authorEmail },
+            connect: { email: args.authorEmail },
           },
         },
       });
@@ -48,13 +60,13 @@ const resolvers = {
   },
 };
 
-const server = new ApolloServer({
+const server = new ApolloServer<{}>({
   resolvers,
   typeDefs,
 });
 
 const handler = startServerAndCreateNextHandler<NextRequest>(server, {
-  context: async (req) => ({ req }),
+  context: async (req, res) => ({ req, res, prisma: new PrismaClient() }),
 });
 
 export async function GET(request: any) {

@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  TypedDocumentNode,
-  gql,
-  useQuery,
-  useSuspenseQuery,
-} from '@apollo/client';
+import { TypedDocumentNode, gql, useQuery } from '@apollo/client';
 import React from 'react';
 
 type ListProps = {};
@@ -27,9 +22,15 @@ const query: TypedDocumentNode<{
 `;
 
 const List = ({}: ListProps) => {
-  const { data } = useSuspenseQuery(query);
+  const { data, loading, error } = useQuery(query);
 
-  console.log(data);
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
 
   return (
     <div>
