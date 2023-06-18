@@ -12,10 +12,14 @@ const typeDefs = gql`
   type Query {
     users: [User!]!
     user(email: String!): User!
+    userTasks(email: String!): [Task!]!
   }
 
   type Mutation {
     createTask(title: String!, authorEmail: String!): Task!
+    updateTask(id: ID!, title: String!): Task!
+    updateTaskStatus(id: ID!, completed: Boolean!): Task!
+    deleteTask(id: ID!): Task!
   }
 
   type Task {
@@ -41,8 +45,13 @@ const resolvers = {
       const user = await context.prisma.user.findUnique({
         where: { email: args.email },
       });
-
       return user;
+    },
+    userTasks: async (parent: any, args: any, context: Context) => {
+      const tasks = await context.prisma.task.findMany({
+        where: { authorId: args.email },
+      });
+      return tasks;
     },
   },
   Mutation: {
@@ -54,6 +63,26 @@ const resolvers = {
             connect: { email: args.authorEmail },
           },
         },
+      });
+      return task;
+    },
+    updateTask: async (parent: any, args: any, context: any) => {
+      const task = await context.prisma.task.update({
+        where: { id: args.id },
+        data: { title: args.title },
+      });
+      return task;
+    },
+    updateTaskStatus: async (parent: any, args: any, context: any) => {
+      const task = await context.prisma.task.update({
+        where: { id: args.id },
+        data: { completed: args.completed },
+      });
+      return task;
+    },
+    deleteTask: async (parent: any, args: any, context: any) => {
+      const task = await context.prisma.task.delete({
+        where: { id: args.id },
       });
       return task;
     },

@@ -2,6 +2,7 @@ import { ApolloWrapper } from '@/lib/apollo-client';
 import './globals.css';
 import { Inter } from 'next/font/google';
 import { NextAuthProvider } from './providers';
+import { Grommet } from 'grommet';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,7 +20,9 @@ export default function RootLayout({
     <html lang='en'>
       <body className={inter.className}>
         <NextAuthProvider>
-          <ApolloWrapper>{children}</ApolloWrapper>
+          <ApolloWrapper>
+            <Grommet>{children}</Grommet>
+          </ApolloWrapper>
         </NextAuthProvider>
       </body>
     </html>

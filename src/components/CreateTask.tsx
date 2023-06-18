@@ -19,7 +19,9 @@ const CreateTaskMutation = gql`
 const CreateTask = ({}: CreateTaskProps) => {
   const { data: session, status } = useSession();
   const [title, setTitle] = useState('');
-  const [createTask] = useMutation(CreateTaskMutation);
+  const [createTask, { loading }] = useMutation(CreateTaskMutation, {
+    refetchQueries: ['UserTasks'],
+  });
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,7 +36,7 @@ const CreateTask = ({}: CreateTaskProps) => {
     setTitle('');
   };
 
-  if (status === 'loading') return <div>Loading...</div>;
+  if (loading) return <div>Loading...</div>;
 
   if (!session?.user) return <div>Access Denied</div>;
 
